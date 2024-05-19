@@ -41,7 +41,7 @@ spring:
           options:
             padding: true
     openai:
-      api-key: sk-******
+      api-key: sk-W9kYeE3JfWM86sr66e29FfC7B3194406B96fAd460353Dc7a
       base-url: https://api.mnzdna.xyz
 
 minio:
@@ -53,3 +53,11 @@ minio:
 server:
   port: 8818
   address: 0.0.0.0
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days
