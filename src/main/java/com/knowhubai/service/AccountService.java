@@ -16,5 +16,7 @@ public interface AccountService {
 
     BaseResponse register(RegisterDTO registerDTO);
 
+    BaseResponse verify(String token);
+
 
 }

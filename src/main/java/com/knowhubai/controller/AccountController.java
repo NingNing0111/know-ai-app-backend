@@ -2,15 +2,16 @@ package com.knowhubai.controller;
 
 import com.knowhubai.common.ApplicationConstant;
 import com.knowhubai.common.BaseResponse;
+import com.knowhubai.common.ErrorCode;
+import com.knowhubai.common.ResultUtils;
 import com.knowhubai.model.dto.LoginDTO;
 import com.knowhubai.model.dto.RegisterDTO;
+import com.knowhubai.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -27,16 +28,19 @@ import java.io.IOException;
 @Slf4j
 public class AccountController {
 
-    @PostMapping("/register")
-    public BaseResponse register(RegisterDTO registerDTO) {
+    private final AccountService accountService;
 
-        return null;
+    @PostMapping("/register")
+    public BaseResponse register(@RequestBody RegisterDTO registerDTO) {
+        if (!registerDTO.password().equals(registerDTO.confirmPassword())) {
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR, "密码不一致");
+        }
+        return accountService.register(registerDTO);
     }
 
     @PostMapping("/login")
-    public BaseResponse login(LoginDTO loginDTO) {
-
-        return null;
+    public BaseResponse login(@RequestBody LoginDTO loginDTO) {
+        return accountService.login(loginDTO);
     }
 
     @PostMapping("/logout")
@@ -51,5 +55,10 @@ public class AccountController {
             HttpServletResponse response
     ) throws IOException {
 
+    }
+
+    @GetMapping("/verify")
+    public BaseResponse verify(@RequestParam String token) {
+        return accountService.verify(token);
     }
 }

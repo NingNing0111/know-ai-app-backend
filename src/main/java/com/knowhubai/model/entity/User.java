@@ -7,9 +7,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @Project: com.knowhubai.model.entity
@@ -28,23 +30,19 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
     private String email;
     private String password;
+    private static final long serialVersionUID = 1L;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;
+    private Role userRole;
 
-    private Boolean enabled = false;
+    private Boolean enabled;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
+        return List.of(new SimpleGrantedAuthority(userRole.name()));
     }
 
     @Override
