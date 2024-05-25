@@ -7,6 +7,8 @@ import com.knowhubai.common.ResultUtils;
 import com.knowhubai.model.dto.LoginDTO;
 import com.knowhubai.model.dto.RegisterDTO;
 import com.knowhubai.service.AccountService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.io.IOException;
  * @Date: 2024/5/21 19:58
  * @Description:
  */
+@Tag(name = "AccountController", description = "用户认证授权接口")
 @RequiredArgsConstructor
 @RequestMapping(ApplicationConstant.API_VERSION + "/account")
 @RestController
@@ -31,6 +34,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/register")
+    @Operation(summary = "账户注册", description = "账户注册")
     public BaseResponse register(@RequestBody RegisterDTO registerDTO) {
         if (!registerDTO.password().equals(registerDTO.confirmPassword())) {
             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "密码不一致");
@@ -39,6 +43,7 @@ public class AccountController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "账户登录", description = "账户登录")
     public BaseResponse login(@RequestBody LoginDTO loginDTO) {
         return accountService.login(loginDTO);
     }
@@ -58,6 +63,7 @@ public class AccountController {
     }
 
     @GetMapping("/verify")
+    @Operation(summary = "邮箱验证", description = "邮箱验证")
     public BaseResponse verify(@RequestParam String token) {
         return accountService.verify(token);
     }

@@ -2,8 +2,8 @@ package com.knowhubai.service;
 
 import com.knowhubai.common.BaseResponse;
 import com.knowhubai.model.dto.QueryFileDTO;
+import com.knowhubai.model.dto.UploadFileDTO;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,10 +21,8 @@ public interface KnowFileService {
     // 删除文件
     BaseResponse deleteFiles(List<Long> ids);
 
-    // 上传文件
-    BaseResponse fileStore(MultipartFile file);
 
-    BaseResponse filesStore(List<MultipartFile> files);
+    BaseResponse filesStore(UploadFileDTO uploadFileDTO);
 
     // 初始化向量数据库操作接口
     VectorStore randomGetVectorStore();

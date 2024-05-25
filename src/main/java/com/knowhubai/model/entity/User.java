@@ -36,13 +36,13 @@ public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Enumerated(EnumType.STRING)
-    private Role userRole;
+    private Role role;
 
     private Boolean enabled;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(userRole.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

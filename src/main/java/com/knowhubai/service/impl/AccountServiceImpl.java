@@ -84,7 +84,7 @@ public class AccountServiceImpl implements AccountService {
         User user = User.builder()
                 .email(registerDTO.email())
                 .enabled(false)
-                .userRole(Role.USER)
+                .role(Role.USER)
                 .password(passwordEncoder.encode(registerDTO.password()))
                 .build();
         // 生成token发送注册链接

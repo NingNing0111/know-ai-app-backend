@@ -4,7 +4,6 @@ import org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration;
 import org.springframework.ai.autoconfigure.vectorstore.pgvector.PgVectorStoreAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 /**
  * @Project: com.knowhubai
@@ -14,10 +13,10 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
  * @Description:
  */
 @SpringBootApplication(
-        exclude = {OpenAiAutoConfiguration.class, PgVectorStoreAutoConfiguration.class, SecurityAutoConfiguration.class}
+        exclude = {OpenAiAutoConfiguration.class, PgVectorStoreAutoConfiguration.class}
 )
 public class KnowHubAIApplication {
     public static void main(String[] args) {
-        SpringApplication.run(KnowHubAIApplication.class,args);
+        SpringApplication.run(KnowHubAIApplication.class, args);
     }
 }

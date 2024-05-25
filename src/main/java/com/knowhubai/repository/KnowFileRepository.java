@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
  * @Description:
  */
 @Repository
-public interface KnowFileRepository extends JpaRepository<KnowFile,Long> {
-    Page<KnowFile> findByFileNameContaining(String keyword, Pageable pageable);
+public interface KnowFileRepository extends JpaRepository<KnowFile, Long> {
+    Page<KnowFile> findByUserIdAndFileNameContaining(Long userId, String keyword, Pageable pageable);
 }

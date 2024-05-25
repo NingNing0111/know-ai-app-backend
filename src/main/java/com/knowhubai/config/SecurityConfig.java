@@ -2,6 +2,7 @@ package com.knowhubai.config;
 
 import com.knowhubai.enums.Role;
 import com.knowhubai.filter.JwtAuthenticationFilter;
+import com.knowhubai.filter.StreamChatAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final StreamChatAuthenticationFilter streamChatAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
 
     private static final String[] WHITE_LIST_URL = {
@@ -31,6 +33,10 @@ public class SecurityConfig {
             "/api/v1/account/register",
             "/api/v1/account/logout",
             "/api/v1/account/verify",
+            "/swagger-ui/**",
+            "/doc.html",
+            "/webjars/**",
+            "/v3/**",
             "/api/v1/chat/**",
     };
 
@@ -62,7 +68,10 @@ public class SecurityConfig {
         );
 
 
-        httpSecurity.authenticationProvider(authenticationProvider).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.authenticationProvider(authenticationProvider)
+
+                .addFilterBefore(streamChatAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationFilter, StreamChatAuthenticationFilter.class);
 
         return httpSecurity.build();
     }

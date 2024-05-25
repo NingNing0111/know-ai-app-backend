@@ -11,5 +11,5 @@ import java.util.List;
  * @Date: 2024/4/3 22:29
  * @Description:
  */
-public record UploadFileDTO(List<MultipartFile> files) {
+public record UploadFileDTO(List<MultipartFile> files, Long userId) {
 }

@@ -4,10 +4,14 @@ import com.knowhubai.common.ErrorCode;
 import com.knowhubai.exception.BusinessException;
 import com.knowhubai.model.entity.User;
 import com.knowhubai.repository.UserRepository;
+import com.knowhubai.service.KnowFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -31,6 +36,9 @@ import java.util.Optional;
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
+
+    @Value("spring.jpa.hibernate.ddl-auto")
+    private String ddlAuto;
 
     @Bean
     public TokenTextSplitter tokenTextSplitter() {
@@ -66,6 +74,14 @@ public class ApplicationConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public VectorStore vectorStore(KnowFileService service, JdbcTemplate jdbcTemplate) {
+        if (Objects.equals(ddlAuto, "create")) {
+            jdbcTemplate.execute("drop table if exists vector_store cascade");
+        }
+        return service.randomGetVectorStore();
     }
 
 

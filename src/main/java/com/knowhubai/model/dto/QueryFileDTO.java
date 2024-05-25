@@ -7,5 +7,5 @@ package com.knowhubai.model.dto;
  * @Date: 2024/4/5 20:17
  * @Description:
  */
-public record QueryFileDTO(Integer page, Integer pageSize, String fileName) {
+public record QueryFileDTO(Long userId, Integer page, Integer pageSize, String fileName) {
 }

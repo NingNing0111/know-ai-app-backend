@@ -5,6 +5,7 @@ import com.knowhubai.common.ErrorCode;
 import com.knowhubai.common.ResultUtils;
 import com.knowhubai.exception.BusinessException;
 import com.knowhubai.model.dto.QueryFileDTO;
+import com.knowhubai.model.dto.UploadFileDTO;
 import com.knowhubai.model.entity.AIApi;
 import com.knowhubai.model.entity.KnowFile;
 import com.knowhubai.repository.KnowFileRepository;
@@ -37,8 +38,7 @@ import java.util.stream.Collectors;
 /**
  * @author ：何汉叁、NingNing0111
  * @date ：2024/4/7 21:16
- * @description：知识库（Minio文件存储服务版）
- * 获取文件功能未加
+ * @description：知识库（Minio文件存储服务版） 获取文件功能未加
  */
 @Service()
 @Slf4j
@@ -52,17 +52,20 @@ public class KnowFileServiceImpl implements KnowFileService {
 
     /**
      * 查询文件
+     *
      * @param request
      * @return
      */
     @Override
     public BaseResponse queryPage(QueryFileDTO request) {
-        Page<KnowFile> fileList = fileRepository.findByFileNameContaining(request.fileName(), PageRequest.of(request.page(), request.pageSize()));
+
+        Page<KnowFile> fileList = fileRepository.findByUserIdAndFileNameContaining(request.userId(), request.fileName() == null ? "" : request.fileName(), PageRequest.of(request.page(), request.pageSize()));
         return ResultUtils.success(fileList);
     }
 
     /**
      * 删除指定ID列表的所有文件
+     *
      * @param ids
      * @return
      */
@@ -74,7 +77,7 @@ public class KnowFileServiceImpl implements KnowFileService {
 
         VectorStore vectorStore = randomGetVectorStore();
 
-        for(KnowFile file: KnowFiles){
+        for (KnowFile file : KnowFiles) {
             String KnowFileName = MatchUtil.getFileName(file.getUrl());
             minioUtil.deleteFile(KnowFileName);
             vectorStore.delete(file.getVectorId());
@@ -83,8 +86,7 @@ public class KnowFileServiceImpl implements KnowFileService {
         return ResultUtils.success("删除成功");
     }
 
-    @Override
-    public BaseResponse fileStore(MultipartFile file) {
+    private void fileStore(MultipartFile file, Long userId) {
         try {
             Resource resource = file.getResource();
             VectorStore vectorStore = randomGetVectorStore();
@@ -101,36 +103,37 @@ public class KnowFileServiceImpl implements KnowFileService {
                     .fileName(name)
                     .vectorId(applyList.stream().map(Document::getId).collect(Collectors.toList()))
                     .url(url)
+                    .userId(userId)
                     .createTime(new Date(currMillis))
                     .updateTime(new Date(currMillis))
                     .build());
-            return ResultUtils.success("上传成功");
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,e.getMessage());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, e.getMessage());
         }
 
     }
 
     @Transactional(rollbackOn = Exception.class)
     @Override
-    public BaseResponse filesStore(List<MultipartFile> files) {
+    public BaseResponse filesStore(UploadFileDTO uploadFileDTO) {
+        List<MultipartFile> files = uploadFileDTO.files();
+        Long userId = uploadFileDTO.userId();
         try {
             for (MultipartFile file :
                     files) {
-                fileStore(file);
+                fileStore(file, userId);
             }
             return ResultUtils.success("上传成功");
-        }catch (Exception e){
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,e.getMessage());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public VectorStore randomGetVectorStore(){
+    public VectorStore randomGetVectorStore() {
         AIApi oneApi = aiApiService.randomGetOne();
         OpenAiApi openAiApi = new OpenAiApi(oneApi.getBaseUrl(), oneApi.getApiKey());
         EmbeddingClient openAiEmbeddingClient = new OpenAiEmbeddingClient(openAiApi);
-        return new PgVectorStore(jdbcTemplate,openAiEmbeddingClient);
+        return new PgVectorStore(jdbcTemplate, openAiEmbeddingClient);
     }
 }
