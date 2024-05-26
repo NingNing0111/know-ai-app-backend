@@ -13,10 +13,15 @@ public class ApplicationConstant {
 
     public final static String DEFAULT_BASE_URL = "https://api.openai.com";
     public final static String SYSTEM_PROMPT = """
-        Use the information from the DOCUMENTS section to provide accurate answers but act as if you knew this information innately.
-        If unsure, simply state that you don't know.
-        Another thing you need to note is that your reply must be in Chinese!
-        DOCUMENTS:
-            {documents}    
-        """;
+                Context information is below.
+                ---------------------
+                {context}
+                ---------------------
+                Given the context information and not prior knowledge, answer the question.
+                You need to respond with content in context first, and then respond with your own database. When the given context doesn't help you answer the question, just say "I don't know."
+                        
+                Question: {question}
+                Answer:
+                        
+            """;
 }

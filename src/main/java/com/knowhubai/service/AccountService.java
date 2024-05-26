@@ -3,6 +3,7 @@ package com.knowhubai.service;
 import com.knowhubai.common.BaseResponse;
 import com.knowhubai.model.dto.LoginDTO;
 import com.knowhubai.model.dto.RegisterDTO;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @Project: com.knowhubai.service
@@ -18,5 +19,10 @@ public interface AccountService {
 
     BaseResponse verify(String token);
 
+    BaseResponse info(HttpServletRequest request);
+
+    BaseResponse refreshToken(HttpServletRequest request);
+
+    BaseResponse logout(HttpServletRequest request);
 
 }

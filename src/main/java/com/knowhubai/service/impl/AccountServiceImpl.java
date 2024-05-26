@@ -1,5 +1,6 @@
 package com.knowhubai.service.impl;
 
+import com.google.common.net.HttpHeaders;
 import com.knowhubai.common.BaseResponse;
 import com.knowhubai.common.ErrorCode;
 import com.knowhubai.common.ResultUtils;
@@ -10,14 +11,18 @@ import com.knowhubai.model.dto.RegisterDTO;
 import com.knowhubai.model.entity.Token;
 import com.knowhubai.model.entity.User;
 import com.knowhubai.model.vo.AuthenticationVo;
+import com.knowhubai.model.vo.UserInfoVo;
 import com.knowhubai.repository.TokenRepository;
 import com.knowhubai.repository.UserRepository;
 import com.knowhubai.service.AccountService;
 import com.knowhubai.utils.JwtUtil;
 import com.knowhubai.utils.MailUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -109,6 +114,58 @@ public class AccountServiceImpl implements AccountService {
         } else {
             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "链接已失效");
         }
+    }
+
+    @Override
+    public BaseResponse info(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        String jwt = authorization.substring(7);
+        String email = jwtUtil.extractUsername(jwt);
+        User user = userRepository.findByEmail(email).orElseThrow();
+        UserInfoVo userInfoVo = UserInfoVo.builder().build();
+        BeanUtils.copyProperties(user, userInfoVo);
+        return ResultUtils.success(userInfoVo);
+    }
+
+    @Override
+    public BaseResponse refreshToken(HttpServletRequest request) {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String userEmail;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResultUtils.error(ErrorCode.NO_AUTH_ERROR);
+        }
+        refreshToken = authHeader.substring(7);
+        userEmail = jwtUtil.extractUsername(refreshToken);
+        if (userEmail != null) {
+            User user = userRepository.findByEmail(userEmail).orElseThrow();
+            if (jwtUtil.isTokenValid(refreshToken, user)) {
+                String accessToken = jwtUtil.generateToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, accessToken);
+                return ResultUtils.success(AuthenticationVo.builder().accessToken(accessToken).refreshToken(refreshToken).build());
+            }
+        }
+        return ResultUtils.error(ErrorCode.NOT_FOUND_ERROR);
+    }
+
+    @Override
+    public BaseResponse logout(HttpServletRequest request) {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String jwt;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResultUtils.error(ErrorCode.OPERATION_ERROR);
+        }
+        jwt = authHeader.substring(7);
+        Token token = tokenRepository.findByToken(jwt).orElse(null);
+        if (token != null) {
+            token.setRevoked(true);
+            token.setExpired(true);
+            tokenRepository.save(token);
+            SecurityContextHolder.clearContext();
+            ResultUtils.success("退出成功");
+        }
+        return ResultUtils.error(ErrorCode.OPERATION_ERROR);
     }
 
     private void saveUserToken(User user, String jwtToken) {

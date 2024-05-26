@@ -2,7 +2,7 @@ spring:
   mail:
     host: smtp.163.com
     username: mnzdna@163.com
-    password: xxxx
+    password: *****
     port: 465
     protocol: smtp
     default-encoding: utf-8
@@ -60,7 +60,7 @@ spring:
           options:
             padding: true
     openai:
-      api-key: sk-W9kYeE*******B96fAd460353Dc7a
+      api-key: sk-W9kYeE3Jf*******6B96fAd460353Dc7a
       base-url: https://api.mnzdna.xyz
 
 

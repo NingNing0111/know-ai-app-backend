@@ -44,17 +44,6 @@ public class ChatController {
             HttpServletResponse response,
             @RequestBody ChatDTO chatRequest
     ) {
-
-//        String authorization = request.getHeader("Authorization");
-//        if (authorization == null || !authorization.startsWith("Bearer ")) {
-//            response.setStatus(HttpStatus.FORBIDDEN.value());
-//            return null;
-//        }
-//
-//        final String jwt = authorization.substring(7);
-//
-
-
         String chatTypeStr = chatRequest.chatOptions().chatType();
         ChatType chatType = ChatType.getChatType(chatTypeStr);
         switch (Objects.requireNonNull(chatType)) {

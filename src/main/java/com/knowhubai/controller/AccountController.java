@@ -10,12 +10,9 @@ import com.knowhubai.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 /**
  * @Project: com.knowhubai.controller
@@ -49,22 +46,29 @@ public class AccountController {
     }
 
     @PostMapping("/logout")
-    public BaseResponse logout() {
+    @Operation(summary = "用户退出", description = "退出接口")
+    public BaseResponse logout(HttpServletRequest request) {
 
-        return null;
+        return accountService.logout(request);
     }
 
     @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-
+    @Operation(summary = "JWT刷新", description = "JWT无感刷新接口，当accessToken过期时，使用refreshToken请求该接口即可获取新的accessToken")
+    public BaseResponse refreshToken(
+            HttpServletRequest request
+    ) {
+        return accountService.refreshToken(request);
     }
 
     @GetMapping("/verify")
     @Operation(summary = "邮箱验证", description = "邮箱验证")
     public BaseResponse verify(@RequestParam String token) {
         return accountService.verify(token);
+    }
+
+    @GetMapping("/info")
+    @Operation(summary = "用户详情", description = "获取用户详细详细")
+    public BaseResponse info(HttpServletRequest request) {
+        return accountService.info(request);
     }
 }

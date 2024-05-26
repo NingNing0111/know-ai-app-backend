@@ -11,7 +11,6 @@ import com.knowhubai.service.AIApiService;
 import com.knowhubai.service.ChatService;
 import com.knowhubai.service.KnowFileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.StreamingChatClient;
 import org.springframework.ai.chat.messages.*;
@@ -47,7 +46,7 @@ public class ChatServiceImpl implements ChatService {
     // 流式普通对话
     @Override
     public Flux<ChatResponse> simpleChat(ChatDTO chatRequest) {
-        if (StrUtil.isBlank(chatRequest.prompt())){
+        if (StrUtil.isBlank(chatRequest.prompt())) {
             return Flux.error(new RuntimeException(String.valueOf(ErrorCode.PROMPT_ERROR)));
         }
         StreamingChatClient streamingChatClient = randomGetStreamingChatClient(chatRequest.chatOptions());
@@ -55,13 +54,14 @@ public class ChatServiceImpl implements ChatService {
         String prompt = chatRequest.prompt();
         UserMessage userMessage = new UserMessage(prompt);
         messages.add(userMessage);
-        messages = checkMessageLength(messages,chatRequest);
+        messages = checkMessageLength(messages, chatRequest);
         return streamingChatClient.stream(new Prompt(messages));
     }
+
     // 流式RAG对话
     @Override
     public Flux<ChatResponse> ragChat(ChatDTO chatRequest) {
-        if (StrUtil.isBlank(chatRequest.prompt())){
+        if (StrUtil.isBlank(chatRequest.prompt())) {
             return Flux.error(new RuntimeException(String.valueOf(ErrorCode.PROMPT_ERROR)));
         }
         StreamingChatClient streamingChatClient = randomGetStreamingChatClient(chatRequest.chatOptions());
@@ -69,26 +69,25 @@ public class ChatServiceImpl implements ChatService {
         List<Message> messages = transformAiMessage(chatRequest.messages());
         messages = checkMessageLength(messages, chatRequest);
         Message systemMessage = similaritySearch(prompt);
-        messages.add(0,systemMessage);
+        messages.add(0, systemMessage);
         return streamingChatClient.stream(new Prompt(messages));
     }
 
 
-
-
     // 向量数据库检索 返回系统提示信息（该信息包含了查询到的一组文档）
-    private Message similaritySearch(String prompt){
+    private Message similaritySearch(String prompt) {
         VectorStore vectorStore = knowFileService.randomGetVectorStore();
         List<Document> listOfSimilarDocuments = vectorStore.similaritySearch(prompt);
         // 将Document列表中每个元素的content内容进行拼接获得documents
         String documents = listOfSimilarDocuments.stream().map(Document::getContent).collect(Collectors.joining());
         // 使用Spring AI 提供的模板方式构建SystemMessage对象
-        Message systemMessage = new SystemPromptTemplate(ApplicationConstant.SYSTEM_PROMPT).createMessage(Map.of("documents", documents));
+        Message systemMessage = new SystemPromptTemplate(ApplicationConstant.SYSTEM_PROMPT)
+                .createMessage(Map.of("context", documents, "question", prompt));
         return systemMessage;
     }
 
     // 构建OpenAI流式客户端
-    private StreamingChatClient randomGetStreamingChatClient(ChatOptions options){
+    private StreamingChatClient randomGetStreamingChatClient(ChatOptions options) {
         OpenAiApi openAiApi = randomOpenAiApi();
         return new OpenAiChatClient(openAiApi, OpenAiChatOptions
                 .builder()
@@ -97,47 +96,38 @@ public class ChatServiceImpl implements ChatService {
                 .build());
     }
 
-    // 构建OpenAI非流式对话客户端
-    private ChatClient randomGetChatClient(ChatOptions options){
-        OpenAiApi openAiApi = randomOpenAiApi();
-        return new OpenAiChatClient(openAiApi,OpenAiChatOptions.builder()
-                .withTemperature(options.temperature())
-                .withModel(options.model())
-                .build());
-    }
-
     // 随机构建一个OpenAI的API
-    private OpenAiApi randomOpenAiApi(){
+    private OpenAiApi randomOpenAiApi() {
         AIApi oneApi = aiApiService.randomGetOne();
         return new OpenAiApi(oneApi.getBaseUrl(), oneApi.getApiKey());
     }
 
     // 保证消息长度在配置的长度范围内
-    private List<Message> checkMessageLength(List<Message> messages, ChatDTO chatRequest){
-        if(!messages.isEmpty()&&messages.get(0).getMessageType() == MessageType.SYSTEM){
+    private List<Message> checkMessageLength(List<Message> messages, ChatDTO chatRequest) {
+        if (!messages.isEmpty() && messages.get(0).getMessageType() == MessageType.SYSTEM) {
             messages.remove(0);
         }
         Integer maxMessageLength = chatRequest.chatOptions().maxHistoryLength();
         int currMessageSize = messages.size();
-        if(currMessageSize > maxMessageLength){
-            messages = messages.subList(currMessageSize-maxMessageLength,currMessageSize);
+        if (currMessageSize > maxMessageLength) {
+            messages = messages.subList(currMessageSize - maxMessageLength, currMessageSize);
         }
         return messages;
     }
 
     // Message转换
-    private List<Message> transformAiMessage(List<com.knowhubai.model.dto.Message> messages){
+    private List<Message> transformAiMessage(List<com.knowhubai.model.dto.Message> messages) {
         List<Message> aiMessage = new ArrayList<>();
-        for(com.knowhubai.model.dto.Message message: messages){
+        for (com.knowhubai.model.dto.Message message : messages) {
             String role = message.role();
             String content = message.content();
             MessageType aiMessageType = MessageType.fromValue(role);
-            switch (aiMessageType){
+            switch (aiMessageType) {
                 case USER -> aiMessage.add(new UserMessage(content));
                 case SYSTEM -> aiMessage.add(new SystemMessage(content));
                 case ASSISTANT -> aiMessage.add(new AssistantMessage(content));
                 case FUNCTION -> aiMessage.add(new FunctionMessage(content));
-                default -> throw new BusinessException(ErrorCode.PARAMS_ERROR,"对话列表存在未知类别:" + role);
+                default -> throw new BusinessException(ErrorCode.PARAMS_ERROR, "对话列表存在未知类别:" + role);
             }
         }
         return aiMessage;

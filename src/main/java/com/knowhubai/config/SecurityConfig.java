@@ -31,18 +31,19 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/account/login",
             "/api/v1/account/register",
-            "/api/v1/account/logout",
             "/api/v1/account/verify",
             "/swagger-ui/**",
             "/doc.html",
             "/webjars/**",
             "/v3/**",
-            "/api/v1/chat/**",
+            "/api/v1/chat/**", // 该接口是WebFlux实现的，Security不允许同时存在两种网络框架的实现，因此需要对该接口单独写个过滤器
     };
 
     private static final String[] USER_LIST_URL = {
             "/api/v1/draw/**",
-            "/api/v1/know/**"
+            "/api/v1/know/**",
+            "/api/v1/account/logout",
+            "/api/v1/account/info",
     };
 
     private static final String[] ADMIN_LIST_URL = {
@@ -60,8 +61,7 @@ public class SecurityConfig {
                 .permitAll()
 
                 .requestMatchers(USER_LIST_URL)
-                .hasAnyAuthority(Role.USER.name())
-
+                .hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
 
                 .anyRequest()
                 .authenticated()
