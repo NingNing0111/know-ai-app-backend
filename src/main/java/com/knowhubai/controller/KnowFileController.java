@@ -61,7 +61,7 @@ public class KnowFileController {
 
     @Operation(summary = "文件删除", description = "文件删除")
     @DeleteMapping("/delete")
-    public BaseResponse deleteFiles(@RequestParam List<Long> ids) {
+    public BaseResponse deleteFiles(@RequestParam List<String> ids) {
         return knowFileService.deleteFiles(ids);
     }
 

@@ -19,7 +19,7 @@ public interface KnowFileService {
     BaseResponse queryPage(QueryFileDTO request);
 
     // 删除文件
-    BaseResponse deleteFiles(List<Long> ids);
+    BaseResponse deleteFiles(List<String> ids);
 
 
     BaseResponse filesStore(UploadFileDTO uploadFileDTO);

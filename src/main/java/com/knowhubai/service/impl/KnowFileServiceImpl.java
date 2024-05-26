@@ -71,7 +71,7 @@ public class KnowFileServiceImpl implements KnowFileService {
      */
     @Transactional(rollbackOn = Exception.class)
     @Override
-    public BaseResponse deleteFiles(List<Long> ids) {
+    public BaseResponse deleteFiles(List<String> ids) {
         List<KnowFile> KnowFiles = fileRepository.findAllById(ids);
         fileRepository.deleteAllById(ids);
 

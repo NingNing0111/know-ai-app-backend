@@ -23,8 +23,8 @@ import java.util.List;
 @NoArgsConstructor
 public class KnowFile {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     private Long userId;
 
