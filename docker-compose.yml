@@ -26,23 +26,27 @@ services:
       - know-hub-network
 
   know-hub-backend:
-    image: ningning0111/know-hub-ai-app
+    image: ningning0111/know-hub-app
     restart: always
     container_name: know-hub-ai-backend
     ports:
-      - "8329:8329"
+      - "8818:8818"
     environment:
-      #     Key分享自：https://pgthinker.me/2023/10/03/196/
+      # Key分享自：https://pgthinker.me/2023/10/03/196/
       - BASE_URL=https://api.mnzdna.xyz
       - BASE_KEY=sk-KgvugzpKzki15GFxB72e7782De844b23B3E4Fc6dDf40B29a
       - DOMAIN= # http://domain.com
-      - MINIO_ENDPOINT=http://127.0.0.1:9000/
+      - MINIO_ENDPOINT=http://minio:9000/
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - BUCKET_NAME=know-hub
       - MAIL_HOST=smtp.163.com
-      - MAIL_USERNAME=
+      - MAIL_USERNAME=example@163.com
       - MAIL_PASSWORD=
+      - PGVECTOR_HOST=vector_db
+      - PGVECTOR_DATABASE=know-hub-app
+      - PGVECTOR_USERNAME=postgres
+      - PGVECTOR_PASSWORD=postgres
     depends_on:
       - vector_db
     networks:

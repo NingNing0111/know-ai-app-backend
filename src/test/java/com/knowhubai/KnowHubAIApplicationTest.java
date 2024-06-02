@@ -1,6 +1,8 @@
 package com.knowhubai;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -10,10 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @Date: 2024/5/25 12:52
  * @Description:
  */
-//@SpringBootTest
+@SpringBootTest
 public class KnowHubAIApplicationTest {
 
-    //    @Autowired
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Test
