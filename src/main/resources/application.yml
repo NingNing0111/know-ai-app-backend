@@ -1,8 +1,8 @@
 spring:
   mail:
-    host: smtp.163.com
-    username: mnzdna@163.com
-    password: *****
+    host: ${MAIL_HOST}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     port: 465
     protocol: smtp
     default-encoding: utf-8
@@ -60,12 +60,12 @@ spring:
           options:
             padding: true
     openai:
-      api-key: sk-W9kYeE3Jf*******6B96fAd460353Dc7a
-      base-url: https://api.mnzdna.xyz
+      api-key: ${BASE_KEY}
+      base-url: ${BASE_URL}
 
 
 minio:
-  endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:9000/}
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9010/}
   access-key: ${MINIO_ACCESS_KEY:minioadmin}
   secret-key: ${MINIO_SECRET_KEY:minioadmin}
   bucket-name: ${BUCKET_NAME:know-hub}
@@ -75,7 +75,7 @@ server:
   address: 0.0.0.0
 
 application:
-  domain: http://localhost:8818
+  domain: ${DOMAIN:http://localhost:8818}
   security:
     jwt:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970

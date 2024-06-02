@@ -51,7 +51,7 @@ public class AIApiServiceImpl implements AIApiService {
     public void reloadOneApiInfo() {
         List<AIApi> findList = oneApiRepository.findAllByDisableIsFalse();
         // 如果数据库内没有数据，则加载配置的api
-        if(findList.isEmpty()){
+        if (findList.isEmpty()) {
             long currMillis = System.currentTimeMillis();
             AIApi oneApi = oneApiRepository.save(AIApi.builder()
                     .apiKey(defaultApiKey)
@@ -61,7 +61,7 @@ public class AIApiServiceImpl implements AIApiService {
                     .updateTime(new Date(currMillis))
                     .build());
             apiList.add(oneApi);
-        }else{
+        } else {
             apiList.clear();
             apiList.addAll(findList);
         }
@@ -78,6 +78,7 @@ public class AIApiServiceImpl implements AIApiService {
 
     /**
      * 添加api
+     *
      * @param request
      * @return
      */
@@ -85,7 +86,7 @@ public class AIApiServiceImpl implements AIApiService {
     @Override
     public BaseResponse addOneApi(AddApiDTO request) {
         try {
-            if (StrUtil.isBlank(request.apiKey())){
+            if (StrUtil.isBlank(request.apiKey())) {
                 return ResultUtils.error(ErrorCode.APIKEY_ERROR);
             }
             long currMillis = System.currentTimeMillis();
@@ -100,8 +101,8 @@ public class AIApiServiceImpl implements AIApiService {
             oneApiRepository.save(oneApi);
             reloadOneApiInfo();
             return ResultUtils.success("添加成功");
-        }catch (Exception e){
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,e.getMessage());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, e.getMessage());
         }
     }
 
@@ -114,30 +115,30 @@ public class AIApiServiceImpl implements AIApiService {
 
     @Override
     public BaseResponse changeApi(Long id) {
-        AIApi oneApi= oneApiRepository.getReferenceById(id);
-        if (oneApi.getId() == null){
+        AIApi oneApi = oneApiRepository.getReferenceById(id);
+        if (oneApi.getId() == null) {
             return ResultUtils.error(ErrorCode.NOT_FOUND_ERROR);
         }
         oneApi.setDisable(!oneApi.getDisable());
         oneApi.setUpdateTime(new Date(System.currentTimeMillis()));
-        try{
+        try {
             oneApiRepository.save(oneApi);
             return ResultUtils.success("更新成功");
-        }catch (Exception e){
-            throw new BusinessException(ErrorCode.UPDATE_ERROR,e.getMessage());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.UPDATE_ERROR, e.getMessage());
         }
     }
 
     @Override
     public BaseResponse selectById(Long id) {
-        AIApi oneApi= oneApiRepository.getReferenceById(id);
+        AIApi oneApi = oneApiRepository.getReferenceById(id);
         return ResultUtils.success(oneApi);
     }
 
     @Override
     public BaseResponse deleteById(Long id) {
-        AIApi oneApi= oneApiRepository.getReferenceById(id);
-        if (oneApi.getDisable()){
+        AIApi oneApi = oneApiRepository.getReferenceById(id);
+        if (oneApi.getDisable()) {
             return ResultUtils.error(ErrorCode.DELETE_ERROR);
         }
         apiList.remove(oneApi);
@@ -147,14 +148,14 @@ public class AIApiServiceImpl implements AIApiService {
 
     @Override
     public BaseResponse deleteByIds(List<Long> ids) {
-        try{
+        try {
             List<AIApi> oneApis = oneApiRepository.findAllByIdIn(ids);
-            for(AIApi oneApi : oneApis){
+            for (AIApi oneApi : oneApis) {
                 apiList.remove(oneApi);
             }
             oneApiRepository.deleteByIdIn(ids);
             return ResultUtils.success("删除成功");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResultUtils.error(ErrorCode.DELETE_ERROR);
         }
     }
